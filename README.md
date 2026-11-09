@@ -86,10 +86,9 @@ SmartPantry uses **trunk-based development**, with `main` as the single long-liv
 2. Create **short-lived branches** from the latest `main` for each Jira ticket.
 3. Open a **small pull request (PR)** early; aim to merge frequently rather than keeping branches open for long periods.
 4. Require review and passing automated checks before merging to `main` (once checks are configured).
-5. Prefer **squash merging** to keep history concise and traceable.
-6. Delete merged branches. Avoid long-lived `develop`, `release/*`, or team-specific integration branches.
-7. Use **feature flags** or small vertical slices for unfinished work; do not merge broken or exposed features.
-8. Never commit secrets, signing keys, local credentials, or environment-specific configuration containing sensitive data.
+5. Delete merged branches. Avoid long-lived `develop`, `release/*`, or team-specific integration branches.
+6. Use **feature flags** or small vertical slices for unfinished work; do not merge broken or exposed features.
+7. Never commit secrets, signing keys, local credentials, or environment-specific configuration containing sensitive data.
 
 ### Naming convention
 
