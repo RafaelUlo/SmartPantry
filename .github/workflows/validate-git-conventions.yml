@@ -1,0 +1,34 @@
+name: Validate Git Conventions
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    name: Validate Git Conventions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          if ! [[ "$BRANCH" =~ ^(feature|fix|hotfix|refactor|docs|test|chore|ci|perf)/[A-Z][A-Z0-9]+-[0-9]+-[a-z0-9]+(-[a-z0-9]+)*$ ]]; then
+            echo "::error::Invalid branch: $BRANCH"
+            exit 1
+          fi
+      - name: Validate PR commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate "repos/$REPO/pulls/$PR_NUMBER/commits?per_page=100" --jq '.[].commit.message | split("\n")[0]' > /tmp/commits.txt
+          while IFS= read -r message; do
+            case "$message" in "Merge "*|"Revert \""*|fixup\!*|squash\!*) continue ;; esac
+            if ! [[ "$message" =~ ^(feat|fix|refactor|docs|test|chore|ci|perf|build)\([A-Z][A-Z0-9]+-[0-9]+\)!?:\ .+ ]]; then
+              echo "::error::Invalid commit: $message"
+              exit 1
+            fi
+          done < /tmp/commits.txt

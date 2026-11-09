@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+message=$(head -n 1 "$1")
+case "$message" in
+  Merge\ *|Revert\ \"*|fixup\!*|squash\!*) exit 0 ;;
+esac
+if ! printf '%s\n' "$message" | grep -Eq '^(feat|fix|refactor|docs|test|chore|ci|perf|build)\([A-Z][A-Z0-9]+-[0-9]+\)!?: .+'; then
+  echo 'Invalid commit message. Example: feat(SMART-123): add household onboarding' >&2
+  exit 1
+fi
