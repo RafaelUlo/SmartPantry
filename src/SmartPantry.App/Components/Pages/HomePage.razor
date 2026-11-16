@@ -1,0 +1,3 @@
+@page "/home"
+<HomeScreen Busy="Host.openingScanner" ScanRequested="Host.Scan" ManageProfiles="() => Host.Go(PantryHost.Screen.Profiles)" />
+@code { [CascadingParameter] public PantryHost Host { get; set; } = default!; }

@@ -1,0 +1,8 @@
+<small>My kitchen</small><h1>Welcome back!</h1><p>What would you like to cook today?</p>
+<button id="Home.OpenBarcodeScanner" data-testid="Home.OpenBarcodeScanner" @onclick="ScanRequested" disabled="@Busy">Scan a product barcode</button>
+<button class="secondary" id="Home.ManageProfiles" data-testid="Home.ManageProfiles" @onclick="ManageProfiles">Manage profiles</button>
+@code {
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback ScanRequested { get; set; }
+    [Parameter] public EventCallback ManageProfiles { get; set; }
+}

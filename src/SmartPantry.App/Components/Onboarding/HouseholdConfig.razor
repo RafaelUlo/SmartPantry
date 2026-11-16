@@ -1,0 +1,12 @@
+<img class="hero" src="images/househero.png" alt="" />
+<label for="@ProfileAutomationIds.HouseholdName">Household name</label>
+<input id="@ProfileAutomationIds.HouseholdName"
+       data-testid="@ProfileAutomationIds.HouseholdName"
+       @bind:get="Value" @bind:set="ValueChanged.InvokeAsync" @bind:event="oninput" />
+<p>This is the default household profile. You can add more profiles later.</p>
+
+@code {
+    [Parameter, EditorRequired] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+}
+

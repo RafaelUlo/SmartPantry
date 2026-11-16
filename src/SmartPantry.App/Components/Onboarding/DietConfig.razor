@@ -1,0 +1,8 @@
+<Options Values="Values" Prefix="Diet"
+         Selected="@(diet => diet == Value)" Changed="ValueChanged" />
+
+@code {
+    [Parameter] public string[] Values { get; set; } = [];
+    [Parameter, EditorRequired] public string Value { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+}

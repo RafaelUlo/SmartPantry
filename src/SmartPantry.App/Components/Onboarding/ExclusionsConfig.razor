@@ -1,0 +1,14 @@
+<Exclusions Items="Items" Added="Added" Removed="Removed" />
+<article data-testid="Onboarding.Summary">
+    <b>Profile summary</b>
+    <p>@ProfileName.Trim() · @Servings servings · @Diet</p>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public string ProfileName { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public int Servings { get; set; }
+    [Parameter, EditorRequired] public string Diet { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyList<string> Items { get; set; } = [];
+    [Parameter] public EventCallback<string> Added { get; set; }
+    [Parameter] public EventCallback<string> Removed { get; set; }
+}

@@ -1,0 +1,3 @@
+@page "/profiles"
+<ProfilesScreen Book="Host.book" EditRequested="Host.Edit" CreateRequested="Host.Create" HomeRequested="() => Host.Go(PantryHost.Screen.Home)" />
+@code { [CascadingParameter] public PantryHost Host { get; set; } = default!; }

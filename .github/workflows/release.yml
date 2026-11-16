@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read
 
 concurrency:
   group: semantic-release
@@ -37,3 +38,19 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run release
+
+      - name: Associate published version with Jira stories
+        if: ${{ always() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BUILD_FIELD: ${{ vars.JIRA_BUILD_FIELD }}
+          JIRA_RESULT_FIELD: ${{ vars.JIRA_RESULT_FIELD }}
+          JIRA_REPORT_FIELD: ${{ vars.JIRA_REPORT_FIELD }}
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/smartpantry-release.json" ]; then
+            node .github/scripts/sync-jira-release.mjs "$RUNNER_TEMP/smartpantry-release.json"
+          fi

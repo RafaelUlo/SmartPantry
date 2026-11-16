@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+ <PropertyGroup><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles></PropertyGroup>
+ <ItemGroup><ProjectReference Include="../SmartPantry.Application/SmartPantry.Application.csproj" /><PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.5" />
+ <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.12" />
+ <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5" PrivateAssets="all" /></ItemGroup>
+</Project>
+

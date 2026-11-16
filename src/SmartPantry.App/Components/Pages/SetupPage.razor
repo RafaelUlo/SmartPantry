@@ -1,0 +1,8 @@
+@page "/setup/{Number:int}"
+<SetupScreen Draft="Host.draft" Step="Host.step" Busy="Host.busy" NextRequested="Host.NextAsync" BackRequested="Host.BackRequested"
+             AllergyChanged="Host.ToggleAllergen" ExclusionAdded="Host.AddExclusion" ExclusionRemoved="Host.RemoveExclusion" />
+@code {
+    [CascadingParameter] public PantryHost Host { get; set; } = default!;
+    [Parameter] public int Number { get; set; }
+    protected override void OnParametersSet() => Host.step = Math.Clamp(Number - 1, 0, 4);
+}

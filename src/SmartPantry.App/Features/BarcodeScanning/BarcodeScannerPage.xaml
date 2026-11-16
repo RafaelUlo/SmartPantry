@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartPantry.Mobile.Features.BarcodeScanning.BarcodeScannerPage" Title="Scan a barcode">
+    <Grid Padding="20" RowDefinitions="*,Auto,Auto,Auto" RowSpacing="12">
+        <ContentView x:Name="Preview" BackgroundColor="#20372D" />
+        <Label Grid.Row="1" x:Name="Status" AutomationId="Scanner.Status"
+               Text="Start the camera and point it at a product barcode." />
+        <Button Grid.Row="2" x:Name="Scan" AutomationId="Scanner.Scan"
+                Text="Start camera" Clicked="StartScan" />
+        <Button Grid.Row="3" x:Name="Settings" AutomationId="Scanner.Settings"
+                Text="Open camera settings" IsVisible="False" Clicked="OpenSettings" />
+    </Grid>
+</ContentPage>
+

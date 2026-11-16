@@ -1,0 +1,17 @@
+@using SmartPantry.Application.Dtos
+<AppDialog Name="Profiles" Title="Choose active profile" CloseId="Selector.Close" Closed="Closed">
+    @foreach (var profile in Book.Profiles)
+    {
+        <button @key="profile.Id" class="choice" id="@ProfileAutomationIds.ProfileOption(profile.Id.ToString())" data-testid="@ProfileAutomationIds.ProfileOption(profile.Id.ToString())" disabled="@Busy" @onclick="() => Selected.InvokeAsync(profile.Id)">
+            @profile.Name · @profile.Servings servings @(profile.Id == Book.ActiveId ? "✓" : "○")
+        </button>
+    }
+    <button id="Selector.Manage" data-testid="Selector.Manage" disabled="@Busy" @onclick="ManageRequested">Manage profiles</button>
+</AppDialog>
+@code {
+    [Parameter, EditorRequired] public HouseholdProfileDto Book { get; set; } = HouseholdProfileDto.Empty;
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback<Guid> Selected { get; set; }
+    [Parameter] public EventCallback Closed { get; set; }
+    [Parameter] public EventCallback ManageRequested { get; set; }
+}

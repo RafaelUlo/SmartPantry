@@ -1,0 +1,14 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SmartPantry.Mobile.MainPage"
+             Shell.NavBarIsVisible="False"
+             SafeAreaEdges="None"
+             BackgroundColor="#faf9f4">
+    <!-- Paint the background behind system bars on Android and iOS. -->
+    <Grid SafeAreaEdges="None" BackgroundColor="#faf9f4">
+        <!-- Extend the WebView behind system bars; only the keyboard adds native insets. -->
+        <ContentView SafeAreaEdges="SoftInput" BackgroundColor="#faf9f4">
+            <BlazorWebView x:Name="Web" HostPage="wwwroot/index.html" />
+        </ContentView>
+    </Grid>
+</ContentPage>

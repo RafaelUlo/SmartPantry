@@ -1,0 +1,23 @@
+@page "/profiles/new"
+@page "/profiles/{ProfileId:guid}/edit"
+<ProfileEditorScreen Draft="Host.draft" Creating="Host.creating" Busy="Host.busy" SaveRequested="Host.SaveAsync"
+                     CancelRequested="() => Host.Go(PantryHost.Screen.Profiles)" DeleteRequested="() => Host.OpenSheet(PantryHost.Sheet.Delete)"
+                     AllergiesRequested="() => Host.OpenSheet(PantryHost.Sheet.Allergies)" ExclusionAdded="Host.AddExclusion" ExclusionRemoved="Host.RemoveExclusion" />
+@code {
+    [CascadingParameter] public PantryHost Host { get; set; } = default!;
+    [Parameter] public Guid? ProfileId { get; set; }
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        ProfileId = null;
+        return base.SetParametersAsync(parameters);
+    }
+    protected override void OnParametersSet()
+    {
+        if (ProfileId is { } id && Host.EditingId != id)
+        {
+            var profile = Host.book.Profiles.FirstOrDefault(p => p.Id == id);
+            if (profile is not null) Host.Edit(profile);
+        }
+        else if (ProfileId is null && !Host.creating) Host.Create();
+    }
+}

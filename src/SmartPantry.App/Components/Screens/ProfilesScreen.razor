@@ -1,0 +1,15 @@
+<small>Household settings</small><h1>Profiles</h1><p>Switch between dietary preferences without changing your shared pantry.</p>
+@foreach (var profile in Book.Profiles)
+{
+    <button @key="profile.Id" class="card" id="@($"Profiles.Edit.{profile.Id}")" data-testid="@($"Profiles.Edit.{profile.Id}")" @onclick="() => EditRequested.InvokeAsync(profile)">
+        <b>@profile.Name @(profile.Id == Book.ActiveId ? "✓ Active" : "")</b><br />@profile.Servings servings · @profile.Diet.Name
+    </button>
+}
+<button id="Profiles.Add" data-testid="Profiles.Add" @onclick="CreateRequested">+ Add new profile</button>
+<button class="secondary" id="Profiles.Home" data-testid="Profiles.Home" @onclick="HomeRequested">Back to pantry</button>
+@code {
+    [Parameter, EditorRequired] public HouseholdProfileDto Book { get; set; } = HouseholdProfileDto.Empty;
+    [Parameter] public EventCallback<HouseholdProfile> EditRequested { get; set; }
+    [Parameter] public EventCallback CreateRequested { get; set; }
+    [Parameter] public EventCallback HomeRequested { get; set; }
+}

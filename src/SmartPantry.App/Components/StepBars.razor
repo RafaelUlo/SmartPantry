@@ -1,0 +1,7 @@
+<div class="progress" id="Onboarding.Progress" data-testid="Onboarding.Progress" role="progressbar" aria-label="Household setup" aria-valuemin="0" aria-valuemax="5" aria-valuenow="@Step">
+    @for (var i = 1; i <= 5; i++)
+    {
+        <span><i class="@(i <= Step ? "filled" : "")"></i></span>
+    }
+</div>
+@code { [Parameter] public int Step { get; set; } }
