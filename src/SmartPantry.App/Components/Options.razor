@@ -1,0 +1,20 @@
+@foreach (var item in Values)
+{
+    var selected = Selected(item);
+    <button class="choice" id="@($"{Prefix}.{Array.IndexOf(Values, item)}")" data-testid="@($"{Prefix}.{OptionKey(item)}")" aria-pressed="@selected.ToString().ToLowerInvariant()" @onclick="() => Changed.InvokeAsync(item)">
+        @item <span aria-hidden="true">@(selected ? "✓" : "○")</span>
+    </button>
+}
+@code {
+    private static string OptionKey(string value) => value switch
+    {
+        "No specific restriction" => "Unrestricted",
+        "Milk / Dairy" => "Dairy",
+        "Tree nuts" => "TreeNuts",
+        _ => value
+    };
+    [Parameter, EditorRequired] public string[] Values { get; set; } = [];
+    [Parameter, EditorRequired] public string Prefix { get; set; } = "";
+    [Parameter, EditorRequired] public Func<string,bool> Selected { get; set; } = default!;
+    [Parameter] public EventCallback<string> Changed { get; set; }
+}

@@ -1,0 +1,57 @@
+name: Validate Jira Issue
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  validate:
+    name: Validate Jira Issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      # No PR checkout: untrusted PR code must not run with Jira credentials.
+      - name: Verify branch ticket exists in Jira
+        env:
+          BRANCH: ${{ github.head_ref }}
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          try {
+            for (const name of ['BRANCH', 'JIRA_BASE_URL', 'JIRA_EMAIL', 'JIRA_API_TOKEN']) {
+              if (!process.env[name]?.trim()) throw new Error(`Missing configuration: ${name}`);
+            }
+
+            const issue = process.env.BRANCH.match(/^(?:feature|fix|hotfix|refactor|docs|test|chore|ci|perf)\/(SP-\d+)-[a-z0-9]+(?:-[a-z0-9]+)*$/)?.[1];
+            if (!issue) throw new Error('Branch must contain an SP ticket, for example feature/SP-11-household-onboarding');
+
+            const base = new URL(process.env.JIRA_BASE_URL);
+            if (base.protocol !== 'https:' || base.username || base.password || base.pathname !== '/' || base.search || base.hash) {
+              throw new Error('JIRA_BASE_URL must be an HTTPS site origin, for example https://example.atlassian.net');
+            }
+
+            const authorization = Buffer.from(`${process.env.JIRA_EMAIL}:${process.env.JIRA_API_TOKEN}`).toString('base64');
+            const response = await fetch(new URL(`/rest/api/3/issue/${issue}?fields=key`, base), {
+              headers: { Authorization: `Basic ${authorization}`, Accept: 'application/json' },
+              redirect: 'error',
+              signal: AbortSignal.timeout(30000),
+            });
+            if (response.status === 401) throw new Error('Jira authentication failed: check JIRA_EMAIL and JIRA_API_TOKEN');
+            if (response.status === 403) throw new Error(`Jira denied access to ${issue}: check account permissions`);
+            if (response.status === 404) throw new Error(`${issue} does not exist or is not visible to the configured Jira account`);
+            if (!response.ok) throw new Error(`Jira validation failed: HTTP ${response.status}`);
+
+            const ticket = await response.json();
+            if (ticket.key !== issue) throw new Error(`Jira did not return the requested ticket ${issue}`);
+            console.log(`Validated Jira ticket ${issue}`);
+          } catch (error) {
+            console.error(error.message);
+            process.exitCode = 1;
+          }
+          NODE

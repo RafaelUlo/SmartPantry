@@ -1,0 +1,18 @@
+<img class="hero" src="images/servingshero.png" alt="" />
+<article class="counter">
+    <button type="button" id="Servings.Decrement" data-testid="Servings.Decrement"
+            aria-label="Decrease servings" disabled="@(Value <= 1)"
+            @onclick="() => ChangeServingsAsync(-1)">−</button>
+    <b id="@ProfileAutomationIds.ServingSize" data-testid="@ProfileAutomationIds.ServingSize">@Value</b>
+    <button type="button" id="Servings.Increment" data-testid="Servings.Increment"
+            aria-label="Increase servings" disabled="@(Value >= 20)"
+            @onclick="() => ChangeServingsAsync(1)">+</button>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public int Value { get; set; }
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+
+    private Task ChangeServingsAsync(int delta) =>
+        ValueChanged.InvokeAsync(Math.Clamp(Value + delta, 1, 20));
+}

@@ -1,0 +1,4 @@
+@page "/"
+@page "/welcome"
+<WelcomeScreen Started="() => Host.Go(PantryHost.Screen.Setup)" />
+@code { [CascadingParameter] public PantryHost Host { get; set; } = default!; }

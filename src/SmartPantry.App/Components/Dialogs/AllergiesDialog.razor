@@ -1,0 +1,9 @@
+<AppDialog Name="Allergies" Title="Food allergies" CloseId="Allergies.Done" CloseText="Done" Closed="Closed">
+    <AllergiesConfig Values="Values" SelectedValues="SelectedValues" Changed="Changed" />
+</AppDialog>
+@code {
+    [Parameter] public string[] Values { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlySet<string> SelectedValues { get; set; } = new HashSet<string>();
+    [Parameter] public EventCallback<string> Changed { get; set; }
+    [Parameter] public EventCallback Closed { get; set; }
+}

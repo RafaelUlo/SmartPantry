@@ -1,0 +1,44 @@
+<div class="dropdown-select" @onkeydown="HandleKeyDown">
+    <button type="button" class="choice dropdown-trigger" id="@Id" data-testid="@Id"
+            aria-labelledby="@LabelledBy" aria-expanded="@open.ToString().ToLowerInvariant()"
+            aria-controls="@(Id + ".Options")" disabled="@Disabled" @onclick="Toggle">
+        <span>@Value</span><span class="dropdown-chevron" aria-hidden="true">⌄</span>
+    </button>
+    @if (open && !Disabled)
+    {
+        <button type="button" class="dropdown-dismiss" tabindex="-1" aria-label="Close options" @onclick="Close"></button>
+        <div class="dropdown-options" id="@(Id + ".Options")" role="group" aria-labelledby="@LabelledBy">
+            @foreach (var option in Values)
+            {
+                <button @key="option" type="button" class="dropdown-option"
+                        data-testid="@(Id + ".Option." + option)"
+                        aria-pressed="@((option == Value).ToString().ToLowerInvariant())"
+                        @onclick="() => SelectAsync(option)">
+                    <span>@option</span><span aria-hidden="true">@(option == Value ? "✓" : "")</span>
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Id { get; set; } = "";
+    [Parameter, EditorRequired] public string LabelledBy { get; set; } = "";
+    [Parameter, EditorRequired] public string[] Values { get; set; } = [];
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    private bool open;
+
+    private void Toggle() => open = !open;
+    private void Close() => open = false;
+    private void HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape") Close();
+    }
+    private async Task SelectAsync(string option)
+    {
+        Close();
+        await ValueChanged.InvokeAsync(option);
+    }
+}

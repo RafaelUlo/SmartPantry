@@ -1,0 +1,23 @@
+<small>Household settings</small><h1>@(Creating ? "Create new profile" : "Edit profile")</h1>
+<label for="Editor.Name">Profile name</label><input id="Editor.Name" data-testid="Editor.Name" @bind="Draft.Name.Value" @bind:event="oninput" />
+<label for="Editor.Servings">Typical servings</label><input inputmode="numeric" id="Editor.Servings" data-testid="Editor.Servings" @bind="Draft.Servings.Value" @bind:event="oninput" />
+<label id="Editor.Diet.Label" for="Editor.Diet">Dietary lifestyle</label>
+<DropdownSelect Id="Editor.Diet" LabelledBy="Editor.Diet.Label" Values="Draft.Diets" @bind-Value="Draft.Diet" Disabled="Busy" />
+<label for="Editor.Allergies">Food allergies</label>
+<button class="choice" id="Editor.Allergies" data-testid="Editor.Allergies" @onclick="AllergiesRequested">@(Draft.Allergies.Count == 0 ? "None selected" : string.Join(", ", Draft.Allergies)) ⌄</button>
+<Exclusions Items="Draft.Exclusions" Added="ExclusionAdded" Removed="ExclusionRemoved" />
+<button id="@ProfileAutomationIds.SaveProfile" data-testid="@ProfileAutomationIds.SaveProfile" disabled="@Busy" @onclick="SaveRequested">@(Creating ? "Create profile" : "Save changes")</button>
+@if (!Creating) { <button class="secondary" id="Editor.Delete" data-testid="Editor.Delete" @onclick="DeleteRequested">Delete profile</button> }
+<button class="secondary" id="Editor.Cancel" data-testid="Editor.Cancel" disabled="@Busy" @onclick="CancelRequested">Cancel</button>
+@code {
+    // This is the parent's form model, never a second draft.
+    [Parameter, EditorRequired] public ProfileDraft Draft { get; set; } = default!;
+    [Parameter] public bool Creating { get; set; }
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback SaveRequested { get; set; }
+    [Parameter] public EventCallback CancelRequested { get; set; }
+    [Parameter] public EventCallback DeleteRequested { get; set; }
+    [Parameter] public EventCallback AllergiesRequested { get; set; }
+    [Parameter] public EventCallback<string> ExclusionAdded { get; set; }
+    [Parameter] public EventCallback<string> ExclusionRemoved { get; set; }
+}

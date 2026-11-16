@@ -1,0 +1,54 @@
+<div class="setup-layout">
+<div class="setup-fields">
+<small>Step @(Step + 1) of 5</small><h1>@Titles[Step]</h1><p>@Descriptions[Step]</p>
+@switch (Step)
+{
+    case 0: <HouseholdConfig @bind-Value="Draft.Name.Value" /> break;
+    case 1: <ServingsConfig @bind-Value="Count" /> break;
+    case 2: <DietConfig Values="Draft.Diets" @bind-Value="Draft.Diet" /> break;
+    case 3: <AllergiesConfig Values="Draft.Allergens" SelectedValues="Draft.Allergies" Changed="AllergyChanged" /> break;
+    case 4:
+        <ExclusionsConfig ProfileName="@Draft.Name.Value" Servings="Count" Diet="@Draft.Diet"
+                          Items="Draft.Exclusions" Added="ExclusionAdded" Removed="ExclusionRemoved" />
+        break;
+}
+</div>
+<footer>
+    <button id="@(Step == 4 ? ProfileAutomationIds.CompleteOnboarding : $"Onboarding.Continue.{Step + 1}")"
+            data-testid="@(Step == 4 ? ProfileAutomationIds.CompleteOnboarding : $"Onboarding.Continue.{Step + 1}")"
+            disabled="@Busy" @onclick="NextRequested">@(Step == 4 ? "Finish setup ✓" : "Continue →")</button>
+    <button data-testid="Onboarding.Back" class="link" disabled="@Busy" @onclick="BackRequested">Back</button>
+</footer>
+</div>
+@code {
+    [Parameter, EditorRequired] public ProfileDraft Draft { get; set; } = default!;
+    [Parameter] public int Step { get; set; }
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback NextRequested { get; set; }
+    [Parameter] public EventCallback BackRequested { get; set; }
+    [Parameter] public EventCallback<string> AllergyChanged { get; set; }
+    [Parameter] public EventCallback<string> ExclusionAdded { get; set; }
+    [Parameter] public EventCallback<string> ExclusionRemoved { get; set; }
+    private int Count
+    {
+        get => int.TryParse(Draft.Servings.Value, out var servings) ? servings : 4;
+        set => Draft.Servings.Value = value.ToString();
+    }
+    private static readonly string[] Titles =
+    [
+        "Let’s set up your household",
+        "How many are eating?",
+        "Your dietary lifestyle",
+        "Any food allergies?",
+        "Ingredients to avoid"
+    ];
+    private static readonly string[] Descriptions =
+    [
+        "Give your household a name to organize your kitchen.",
+        "Choose the typical number of servings for recipes.",
+        "We’ll adapt recipe discovery and AI suggestions to your preferences.",
+        "Select the allergens that recipes must avoid.",
+        "Add ingredients you don’t want to see in recipes."
+    ];
+
+}

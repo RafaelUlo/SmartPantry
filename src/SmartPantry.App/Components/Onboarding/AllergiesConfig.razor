@@ -1,0 +1,16 @@
+<Options Values="Allergens" Prefix="Allergy"
+         Selected="IsSelected" Changed="Changed" />
+
+@code {
+    [Parameter] public string[] Values { get; set; } = [];
+    private string[] Allergens => ["None", .. Values];
+
+    [Parameter, EditorRequired]
+    public IReadOnlySet<string> SelectedValues { get; set; } = new HashSet<string>();
+
+    [Parameter] public EventCallback<string> Changed { get; set; }
+
+    private bool IsSelected(string value) => value == "None"
+        ? SelectedValues.Count == 0
+        : SelectedValues.Contains(value);
+}

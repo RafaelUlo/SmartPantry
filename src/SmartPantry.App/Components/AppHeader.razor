@@ -1,0 +1,5 @@
+<header><strong>◈ SmartPantry</strong><button id="@ProfileAutomationIds.OpenSelector" data-testid="@ProfileAutomationIds.OpenSelector" @onclick="SelectorRequested">@ProfileName ⌄</button></header>
+@code {
+    [Parameter, EditorRequired] public string ProfileName { get; set; } = "";
+    [Parameter] public EventCallback SelectorRequested { get; set; }
+}

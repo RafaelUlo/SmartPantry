@@ -1,0 +1,37 @@
+@implements IDisposable
+<main aria-busy="@busy.ToString().ToLowerInvariant()">
+    @if (screen is Screen.Home or Screen.Profiles or Screen.Editor)
+    {
+        <AppHeader ProfileName="@book.Active.Name" SelectorRequested="() => OpenSheet(Sheet.Profiles)" />
+    }
+    @if (screen == Screen.Setup) { <StepBars Step="@(step + 1)" /> }
+    <section data-testid="@($"Screen.{screen}")"  class="content">
+        @if (screen == Screen.Loading)
+        {
+            <p role="status" data-testid="Profiles.Loading">Loading profiles…</p>
+        }
+        else if (screen == Screen.Failure)
+        {
+            <FailureScreen RetryRequested="LoadAsync" />
+        }
+        else
+        {
+            <CascadingValue Value="@this">
+                <Router AppAssembly="typeof(PantryHost).Assembly">
+                    <Found Context="routeData"><RouteView RouteData="routeData" /></Found>
+                    <NotFound><p>Screen not found.</p><button @onclick="() => Go(Screen.Home)">Go home</button></NotFound>
+                </Router>
+            </CascadingValue>
+        }
+    </section>
+    @if (error is not null) { <p id="Profile.Validation" data-testid="Profile.Validation" role="alert">@error</p> }
+</main>
+@switch (sheet)
+{
+    case Sheet.Profiles:
+        <ProfileSelectorDialog Book="book" Busy="busy" Selected="SelectProfileAsync" Closed="CloseSheet" ManageRequested="() => Go(Screen.Profiles)" />
+        break;
+    case Sheet.Allergies: <AllergiesDialog Values="draft.Allergens" SelectedValues="draft.Allergies" Changed="ToggleAllergen" Closed="CloseSheet" /> break;
+    case Sheet.Delete: <DeleteProfileDialog Closed="CloseSheet" /> break;
+}
+

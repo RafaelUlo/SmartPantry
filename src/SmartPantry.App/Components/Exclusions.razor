@@ -1,0 +1,92 @@
+@implements IDisposable
+@inject SmartPantry.Application.Catalogue.ICatalogueService Catalogue
+<label for="Exclusions.Input">Excluded ingredients</label>
+<div class="ingredient-search">
+    <input id="Exclusions.Input" data-testid="Exclusions.Input" placeholder="Search ingredients" autocomplete="off"
+           role="combobox" aria-autocomplete="list" aria-controls="Exclusions.Results" aria-expanded="@showResults.ToString().ToLowerInvariant()"
+           value="@value" @oninput="SearchAsync" disabled="@creating" />
+    @if (showResults)
+    {
+        <div id="Exclusions.Results" data-testid="Exclusions.Results" class="ingredient-dropdown">
+            @if (searching) { <p role="status" data-testid="Exclusions.Searching">Searching…</p> }
+            else if (error is null && results.Length > 0)
+            {
+                @foreach (var item in results)
+                {
+                    <button type="button" class="choice" data-testid="@($"Exclusions.Option.{item.Id}")"
+                            disabled="@Items.Contains(item.Name, StringComparer.OrdinalIgnoreCase)" @onclick="() => SelectAsync(item.Name)">@item.Name</button>
+                }
+            }
+            else if (error is null)
+            {
+                <p data-testid="Exclusions.NoMatches">No matching ingredient. Create it?</p>
+                <button type="button" id="Exclusions.Add" data-testid="Exclusions.Add" disabled="@creating" @onclick="CreateAsync">
+                    @(creating ? "Creating…" : $"Create “{value.Trim()}” and add")
+                </button>
+            }
+        </div>
+    }
+</div>
+@if (error is not null) { <p data-testid="Exclusions.Validation" role="alert">@error</p> }
+<div data-testid="Exclusions.Tags" class="tags">
+    @foreach (var item in Items)
+    {
+        <button id="@($"Exclusions.Remove.{Uri.EscapeDataString(item)}")" data-testid="@($"Exclusions.Remove.{Uri.EscapeDataString(item)}")"
+                aria-label="@($"Remove {item}")" type="button" @onclick="() => Removed.InvokeAsync(item)">@item ×</button>
+    }
+</div>
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<string> Items { get; set; } = [];
+    [Parameter] public EventCallback<string> Added { get; set; }
+    [Parameter] public EventCallback<string> Removed { get; set; }
+    private SmartPantry.Application.Catalogue.CatalogueOption[] results = [];
+    private CancellationTokenSource? searchCancellation;
+    private string value = "";
+    private string? error;
+    private bool searching, creating, showResults, disposed;
+
+    private async Task SearchAsync(ChangeEventArgs args)
+    {
+        searchCancellation?.Cancel();
+        searchCancellation?.Dispose();
+        var cancellation = searchCancellation = new();
+        value = args.Value?.ToString() ?? "";
+        error = null; results = [];
+        showResults = !string.IsNullOrWhiteSpace(value);
+        searching = showResults;
+        if (!showResults) return;
+        try
+        {
+            await Task.Delay(250, cancellation.Token);
+            var found = await Catalogue.SearchIngredientsAsync(value, cancellation.Token);
+            if (!disposed && !cancellation.IsCancellationRequested) results = found;
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception) { if (!disposed && !cancellation.IsCancellationRequested) error = "Could not search ingredients. Please try again."; }
+        finally { if (!disposed && !cancellation.IsCancellationRequested) searching = false; }
+    }
+    private async Task SelectAsync(string name)
+    {
+        if (Items.Contains(name, StringComparer.OrdinalIgnoreCase)) return;
+        await Added.InvokeAsync(name);
+        value = ""; results = []; showResults = false; error = null;
+    }
+    private async Task CreateAsync()
+    {
+        if (creating || searching || results.Length > 0 || string.IsNullOrWhiteSpace(value)) return;
+        creating = true;
+        try
+        {
+            var item = await Catalogue.CreateIngredientAsync(value);
+            await SelectAsync(item.Name);
+        }
+        catch (Exception) { error = "Could not create the ingredient. Please try again."; }
+        finally { creating = false; }
+    }
+    public void Dispose()
+    {
+        disposed = true;
+        searchCancellation?.Cancel();
+        searchCancellation?.Dispose();
+    }
+}
